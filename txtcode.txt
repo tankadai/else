@@ -1,0 +1,148 @@
+
+index.php
+<!DOCTYPE html>
+<head>
+    <title>Form Submission</title>
+    <style>
+        #photoPreview {
+            display: none;
+            max-width: 10%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <form id="userForm" action="confirmation.php" method="post" enctype="multipart/form-data">
+        <label for="firstname">First Name:</label>
+        <input type="text" id="firstname" name="firstname" required><br><br>
+        <label for="lastname">Last Name:</label>
+        <input type="text" id="lastname" name="lastname" required><br><br>
+        <label for="gender">Gender:</label>
+        <input type="radio" id="male" name="gender" value="male" required> Male
+        <input type="radio" id="female" name="gender" value="female" required> Female<br><br> 
+        <label for="nationality">Nationality:</label>
+        <select id="nationality" name="nationality" required>
+            <option value="Nepal">Nepal</option>
+            <option value="India">India</option>
+            <option value="China">China</option>
+        </select><br><br>
+        <label for="mobile">Mobile No (+977):</label>
+        <input type="number" id="mobile" name="mobile" pattern="[0-9]{10}" placeholder="Enter 10 digits" required><br><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>       
+        <label for="address">Address:</label>
+        <textarea id="address" name="address" required></textarea><br><br>
+        <label for="photo">Photo:</label>
+        <input type="file" id="photo" name="photo" accept="image/*" onchange="previewImage(event)" required><br><br>
+        <img id="photoPreview" src="#" alt="Photo Preview"><br><br>       
+        <button type="submit">Submit</button>
+        <button type="reset" onclick="clearPreview()">Reset</button>
+    </form>
+    <script>
+        function previewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var output = document.getElementById('photoPreview');
+                output.src = reader.result;
+                output.style.display = 'block';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+        function clearPreview() {
+            var output = document.getElementById('photoPreview');
+            output.src = '';
+            output.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
+
+
+confirmation.php
+
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $firstname = $_POST['firstname'];
+    $lastname = $_POST['lastname'];
+    $gender = $_POST['gender'];
+    $nationality = $_POST['nationality'];
+    $mobile = $_POST['mobile'];
+    $email = $_POST['email'];
+    $address = $_POST['address'];
+    $photo = $_FILES['photo'];
+    $photoPath = 'uploads/' . basename($photo['name']);
+    move_uploaded_file($photo['tmp_name'], $photoPath);
+    session_start();
+    $_SESSION['exeForm'] = $_POST;
+    $_SESSION['photoPath'] = $photoPath;
+}
+?>
+<!DOCTYPE html>
+<head>
+    <title>Confirmation</title>
+</head>
+<body>
+    <h2>Are you sure you want to continue?</h2>
+    <form action="submit.php" method="post">
+        <button type="submit" name="confirm" value="yes">OK</button>
+        <button type="submit" name="confirm" value="no">Ignore</button>
+    </form>
+</body>
+</html>
+
+submit.php
+
+
+<?php
+session_start();
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($_POST['confirm'] == 'yes') {
+        $data = $_SESSION['exeForm'];
+        $photoPath = $_SESSION['photoPath'];
+        $conn = new mysqli("localhost", "root", "", "exeForm");
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+        $stmt = $conn->prepare("INSERT INTO usersdata (firstname, lastname, gender, nationality, mobile, email, address, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssssss", $data['firstname'], $data['lastname'], $data['gender'], $data['nationality'], $data['mobile'], $data['email'], $data['address'], $photoPath);
+        if ($stmt->execute()) {
+            echo "<h2>Congratulations! Your data has been successfully stored in the database.</h2>";
+        } else {
+            echo "<h2>There was an error storing your data. Please try again.</h2>";
+        }
+        $stmt->close();
+        $conn->close();
+    } else {
+        echo "<h2>Your submission was cancelled by you.<br> Do you want to go back to the main page?</h2>";
+    }
+}
+?>
+<!DOCTYPE html>
+<head>
+    <title>Submit</title>
+</head>
+<body>
+    <a href="index.php"><button>Resubmit</button></a>
+</body>
+</html>
+
+
+exe.sql
+
+CREATE DATABASE exeForm;
+USE exeForm;
+CREATE TABLE usersdata (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    firstname VARCHAR(50) NOT NULL,
+    lastname VARCHAR(50) NOT NULL,
+    gender VARCHAR(10) NOT NULL,
+    nationality VARCHAR(50) NOT NULL,
+    mobile VARCHAR(10) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    address TEXT NOT NULL,
+    photo VARCHAR(100) NOT NULL
+);
+
+
+
+uploads -----< file

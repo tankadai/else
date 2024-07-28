@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Code Link</title>
+    <title>Index Page</title>
     <link rel="icon" type="image/png" href="vikings.jpg">
     <style>
         body {
@@ -13,7 +13,16 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .overlay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            backdrop-filter: blur(10px);
         }
         .button-container {
             text-align: center;
@@ -38,8 +47,10 @@
     </style>
 </head>
 <body>
-    <div class="button-container">
-        <button class="link-button" onclick="openLink()">Get Link</button>
+    <div class="overlay">
+        <div class="button-container">
+            <button class="link-button" onclick="openLink()">Get Link</button>
+        </div>
     </div>
 
     <script>

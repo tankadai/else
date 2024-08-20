@@ -51,6 +51,7 @@
     <div class="overlay">
         <div class="button-container">
             <button class="link-button" onclick="down()">Download</button>
+             <button class="link-button" onclick="down2()">Download SQL</button>
             <button class="link-button" onclick="openLink()">Get Link</button>
         </div>
     </div>
@@ -63,6 +64,14 @@
             const link = document.createElement('a');
             link.href = 'EXEPJ.zip'; // Replace with the actual path to your file
             link.download = 'EXEPJ.zip'; // Optional: specify the name for the downloaded file
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        function down2() {
+            const link = document.createElement('a');
+            link.href = 'abc.sql'; // Replace with the actual path to your file
+            link.download = 'abc.sql'; // Optional: specify the name for the downloaded file
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
